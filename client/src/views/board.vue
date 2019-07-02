@@ -23,51 +23,56 @@
     </v-layout>
     <v-layout v-if="!loadingLists" row wrap>
         <listCard 
-            :listName="list.name" 
+            :listName="list.name"
+            :lstId="list._id"
             v-for="list in lists" 
             :key="list._id"/>
     </v-layout>
-<v-layout v-if="!loadingBoard" row wrap>
-    <v-flex xs12 sm6 md4 lg3 xl3 py-3 mx-auto>
-      <v-card>
-        <v-card-title primary-title style="flex-direction: column">
-          <div class="headline">
-            <span class="grey--text">Create list</span><br>
-          </div>
-          <div>
-            <v-form
-                ref="form"
-                v-model="valid"
-                @submit.prevent="createList"
-                @keydown.prevent.enter
-            >
-                <v-flex px-5 pt-3 mt-2>
-                    <v-text-field
-                    v-model="list.name"
-                    :rules="[v => !!v || 'List name is required']"
-                    label="List name"
-                    required
-                    ></v-text-field>
+    <v-layout v-if="!loadingBoard" row wrap>
+        <v-flex xs12 sm6 md4 lg3 xl3 py-3 mx-auto>
+        <v-card>
+            <v-card-title primary-title style="flex-direction: column">
+            <div class="headline">
+                <span class="grey--text">Create list</span><br>
+            </div>
+            <div>
+                <v-form
+                    ref="form"
+                    v-model="valid"
+                    @submit.prevent="createList"
+                    @keydown.prevent.enter
+                >
+                    <v-flex px-5 pt-3 mt-2>
+                        <v-text-field
+                        v-model="list.name"
+                        :rules="[v => !!v || 'List name is required']"
+                        label="List name"
+                        required
+                        ></v-text-field>
 
-                    <v-spacer></v-spacer>
+                        <v-spacer></v-spacer>
 
-                    <v-btn
-                    type="submit"
-                    color="primary"
-                    :disabled="!valid"
-                    >
-                    Create
-                    </v-btn>
-                </v-flex>
-            </v-form> 
-          </div>
-        </v-card-title>
-        <v-card-actions>
-          
-        </v-card-actions>
-      </v-card>
-    </v-flex>
-</v-layout>
+                        <v-btn
+                        type="submit"
+                        color="primary"
+                        :disabled="!valid"
+                        >
+                        Create
+                        </v-btn>
+                    </v-flex>
+                </v-form> 
+            </div>
+            </v-card-title>
+            <v-card-actions>
+            
+            </v-card-actions>
+        </v-card>
+        </v-flex>
+    </v-layout>
+    <v-content>
+        <router-view>
+        </router-view>
+    </v-content>
 </v-container>
 </template>
 
@@ -115,7 +120,8 @@ export default {
                     boardId: this.$route.params.id
                 }
                 }).data;
-        }
+        },
+        
     },
     methods: {
         ...mapActions('boards', { getBoard: 'get' } ),
@@ -132,7 +138,7 @@ export default {
                     archived: false
                 };
             }
-        }
+        },
     }
 }
 </script>

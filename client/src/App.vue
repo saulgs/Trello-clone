@@ -13,6 +13,7 @@
       <v-toolbar-items v-if=user class="hidden-sm-and-down">
         <v-layout justify-content align-center>
           <h3>{{user.userInfo.displayName}}</h3>
+          <pre>  </pre>
           <v-avatar
             :size="40"
             color="grey lighten-4"

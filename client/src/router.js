@@ -1,10 +1,13 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+
 import Home from './views/Home.vue';
 import SignUp from './views/SignUp.vue';
 import Login from './views/Login.vue';
 import Boards from './views/boards.vue';
 import Board from './views/board.vue';
+
+import modalCardInfo from './components/modalCardInfo';
 
 import store from './store';
 
@@ -56,6 +59,13 @@ export default new Router({
       name: 'board',
       component: Board,
       beforeEnter: isLoggedIn,
+      children: [
+        {
+          path: 'card/:cardid',
+          name: 'card',
+          component: modalCardInfo
+        }
+      ],
     }
   ],
 });

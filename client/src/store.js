@@ -19,7 +19,7 @@ export default new Vuex.Store({
           email: '',
           password: '',
           displayName: '',
-          imageUrl: ''
+          imageUrl: '',
         },
       }
     ),
@@ -27,20 +27,31 @@ export default new Vuex.Store({
         instanceDefaults: {
           name: '',
           background: '',
-          ownerid: '',
-          memberids: ''
+          ownerId: '',
+          memberIds: [],
         },
       }
     ),
     service('lists', {
-      instanceDefaults: {
-        name: '',
-        order: '',
-        archived: false,
-        boardId: ''
-      },
-    }
-  ),
+        instanceDefaults: {
+          name: '',
+          order: 0,
+          archived: false,
+          boardId: '',
+        },
+      }
+    ),
+    service('cards', {
+        instanceDefaults: {
+          title: '',
+          description: '',
+          order: 0,
+          archived: false,
+          listId: '',
+          memberIds: [],
+        },
+      }
+    ),
     auth({ userService: 'users',
           payload: undefined,
           isAuthenticatePending: false,
