@@ -44,8 +44,7 @@ export default {
         dialog: true,
     }),
     mounted() {
-       console.log(this.$route.params);
-       //console.log(userPayload);
+       
     },
     computed: {
         ...mapState('auth', {user: 'payload'}),

@@ -22,11 +22,18 @@
         </v-flex>
     </v-layout>
     <v-layout v-if="!loadingLists" row wrap>
-        <listCard 
-            :listName="list.name"
-            :lstId="list._id"
-            v-for="list in lists" 
-            :key="list._id"/>
+        <v-flex v-for="list in lists" :key="list._id" xs12 sm6 md4 lg3 xl3 px-1 py-2 mx-auto>
+            <listCard 
+                :listName="list.name"
+                :lstId="list._id"
+                :list="list"
+                :setDroppingList="onSetDroppingList"
+                :startDragging="startDraggingCards"
+                :dropCard="dropCard"
+                :droppingList="droppingList"
+                :cardsByListId="cardsByListId"
+            />
+        </v-flex>
     </v-layout>
     <v-layout v-if="!loadingBoard" row wrap>
         <v-flex xs12 sm6 md4 lg3 xl3 py-3 mx-auto>
@@ -78,7 +85,7 @@
 
 <script>
 
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
 import listCard from '../components/listCard';
 
 export default {
@@ -97,23 +104,26 @@ export default {
     mounted() {
         this.getBoard(this.$route.params.id)
         .then(response => {
-        // In the find action, the 'todos' array is not a reactive list, but the individual records are.
-        this.board = response.data || response;
+            this.board = response.data || response;
         });
         this.findLists({
             query:{
                 boardId: this.$route.params.id
             }
-        })
-        .then(response => {
-        // In the find action, the 'todos' array is not a reactive list, but the individual records are.
-        const lists = response.data || response;
-        })        
+        });
+         this.findCards({
+            query:{
+                boardId: this.$route.params.id
+            }
+        });        
     },
     computed: {
         ...mapState('boards', { loadingBoard: 'isGetPending' }),
         ...mapState('lists', { loadingLists: 'isFindPending' }),
         ...mapGetters('lists', { findListsinDB: 'find' }),
+        ...mapState('brd', ['droppingList', 'draggingCard']),
+        ...mapState('cards', { loadingCards: 'isFindPending' }),
+        ...mapGetters('cards', { findCardsinDB: 'find' }),
         lists(){
             return this.findListsinDB({
                 query:{
@@ -121,11 +131,26 @@ export default {
                 }
                 }).data;
         },
-        
+        cards(){
+            return this.findCardsinDB({
+                query:{
+                    boardId: this.$route.params.id
+                }
+            }).data;
+        },
+        cardsByListId() {
+            return this.cards.reduce((byId, card) => {
+                byId[card.listId] = byId[card.listId] || [];
+                byId[card.listId].push(card);
+                return byId;
+            }, {});
+        },
     },
     methods: {
+        ...mapMutations('brd', ['setDroppingList', 'setDraggingCard']),
         ...mapActions('boards', { getBoard: 'get' } ),
         ...mapActions('lists', { findLists: 'find' } ),
+        ...mapActions('cards', { findCards: 'find' } ),
         createList(){
             if (this.valid){
                 const { List } = this.$FeathersVuex;
@@ -138,6 +163,25 @@ export default {
                     archived: false
                 };
             }
+        },
+        startDraggingCards(card) {
+            this.setDraggingCard(card);
+        },
+        onSetDroppingList(event, list) {
+            event.preventDefault();
+            this.setDroppingList(list);
+        },
+        async dropCard() {
+            if (this.droppingList) {
+                if (this.draggingCard.listId !== this.droppingList._id) {
+                const fromList = this.lists.find(list => list._id === this.draggingCard.listId);
+                const toList = this.lists.find(list => list._id === this.droppingList._id);
+                this.draggingCard.listId = this.droppingList._id;
+                await this.draggingCard.save();
+                }
+            }
+            this.setDroppingList(null);
+            this.setDraggingCard(null);
         },
     }
 }
