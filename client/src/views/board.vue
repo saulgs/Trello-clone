@@ -1,17 +1,20 @@
 <template>
-<v-container fluid>
-    <v-layout
-    v-if="loadingBoard || loadingLists"
-    mx-auto
-    >
-        <v-progress-circular
-        :size="100"
-        :width="7"
-        color="primary"
-        indeterminate
-        ></v-progress-circular>
+<v-parallax
+v-if="board"
+height="100%"
+:src="board.background"
+>
+<v-layout column row wrap>
+    <v-layout v-if="boardError">
+        <v-alert
+        :value="boardError"
+        type="error"
+        >
+        {{boardError.message}}
+        </v-alert>
     </v-layout>
-    <v-layout v-if="board" row wrap>
+    <v-container v-if="!boardError" pa-0 ma-0 fluid>
+    <v-layout v-if="!loadingBoard" row wrap>
         <v-flex xs2 sm1 md1 lg1 xl1> 
             <v-btn icon :to="{ name: 'boards' }">
                 <v-icon>mdi mdi-arrow-left-thick</v-icon>
@@ -20,6 +23,21 @@
         <v-flex xs10 sm11 md11 lg11 xl11>
             <h2>{{board.name}}</h2>
         </v-flex>
+    </v-layout>
+    <v-layout
+    v-if="loadingBoard || loadingLists"
+    align-center 
+    justify-center 
+    fill-height
+    row 
+    wrap
+    >
+        <v-progress-circular
+        :size="100"
+        :width="7"
+        color="primary"
+        indeterminate
+        ></v-progress-circular>
     </v-layout>
     <v-layout v-if="!loadingLists" row wrap>
         <v-flex v-for="list in lists" :key="list._id" xs12 sm6 md4 lg3 xl3 px-1 py-2 mx-auto>
@@ -76,11 +94,13 @@
         </v-card>
         </v-flex>
     </v-layout>
+    </v-container>
     <v-content>
         <router-view>
         </router-view>
     </v-content>
-</v-container>
+</v-layout>
+</v-parallax>
 </template>
 
 <script>
@@ -118,8 +138,10 @@ export default {
         });        
     },
     computed: {
-        ...mapState('boards', { loadingBoard: 'isGetPending' }),
-        ...mapState('lists', { loadingLists: 'isFindPending' }),
+        ...mapState('boards', { loadingBoard: 'isGetPending',
+                                boardError: 'errorOnGet' }),
+        ...mapState('lists', { loadingLists: 'isFindPending',
+                                listError: 'errorOnfind' }),
         ...mapGetters('lists', { findListsinDB: 'find' }),
         ...mapState('brd', ['droppingList', 'draggingCard']),
         ...mapState('cards', { loadingCards: 'isFindPending' }),
@@ -186,3 +208,10 @@ export default {
     }
 }
 </script>
+
+<style>
+.back {
+  background-size: cover;
+}
+</style>
+

@@ -2,7 +2,11 @@
 <v-container fluid>
     <v-layout
     v-if="loading"
-    mx-auto
+    align-center 
+    justify-center 
+    fill-height
+    row
+    wrap
     >
         <v-progress-circular
         :size="100"
