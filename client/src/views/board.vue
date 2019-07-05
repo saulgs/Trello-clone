@@ -1,116 +1,118 @@
 <template>
-<v-parallax
-v-if="board"
-height="100%"
-:src="board.background"
->
-<v-layout column row wrap>
-    <v-layout v-if="boardError">
-        <v-alert
-        :value="boardError"
-        type="error"
-        >
-        {{boardError.message}}
-        </v-alert>
-    </v-layout>
-    <v-container v-if="!boardError" pa-0 ma-0 fluid>
-    <v-layout v-if="!loadingBoard" row wrap>
-        <v-flex xs2 sm1 md1 lg1 xl1> 
-            <v-btn icon :to="{ name: 'boards' }">
-                <v-icon>mdi mdi-arrow-left-thick</v-icon>
-            </v-btn>
-        </v-flex>
-        <v-flex xs10 sm11 md11 lg11 xl11>
-            <h2>{{board.name}}</h2>
-        </v-flex>
-    </v-layout>
-    <v-layout
-    v-if="loadingBoard || loadingLists"
-    align-center 
-    justify-center 
-    fill-height
-    row 
-    wrap
-    >
-        <v-progress-circular
-        :size="100"
-        :width="7"
-        color="primary"
-        indeterminate
-        ></v-progress-circular>
-    </v-layout>
-    <v-layout v-if="!loadingLists" row wrap>
-        <v-flex v-for="list in lists" :key="list._id" xs12 sm6 md4 lg3 xl3 px-1 py-2 mx-auto>
-            <listCard 
-                :listName="list.name"
-                :lstId="list._id"
-                :list="list"
-                :setDroppingList="onSetDroppingList"
-                :startDragging="startDraggingCards"
-                :dropCard="dropCard"
-                :droppingList="droppingList"
-                :cardsByListId="cardsByListId"
-            />
-        </v-flex>
-    </v-layout>
-    <v-layout v-if="!loadingBoard" row wrap>
-        <v-flex xs12 sm6 md4 lg3 xl3 py-3 mx-auto>
-        <v-card>
-            <v-card-title primary-title style="flex-direction: column">
-            <div class="headline">
-                <span class="grey--text">Create list</span><br>
-            </div>
-            <div>
-                <v-form
-                    ref="form"
-                    v-model="valid"
-                    @submit.prevent="createList"
-                    @keydown.prevent.enter
-                >
-                    <v-flex px-5 pt-3 mt-2>
-                        <v-text-field
-                        v-model="list.name"
-                        :rules="[v => !!v || 'List name is required']"
-                        label="List name"
-                        required
-                        ></v-text-field>
-
-                        <v-spacer></v-spacer>
-
-                        <v-btn
-                        type="submit"
-                        color="primary"
-                        :disabled="!valid"
-                        >
-                        Create
+    <v-container pa-0 ma-0 fluid>
+        <v-layout pa-0 ma-0>
+            <v-flex xs10>
+                <v-flex xs12 v-if="boardError">
+                    <v-alert
+                        :value="boardError"
+                        type="error"
+                    >
+                        {{boardError.message}}
+                    </v-alert>
+                </v-flex>
+            <v-container v-if="!boardError" pa-0 ma-0 fluid>
+                <v-layout v-if="!loadingBoard">
+                    <v-flex xs1 align-center justify-center>  
+                        <v-btn icon :to="{ name: 'boards' }">
+                            <v-icon>mdi mdi-arrow-left-thick</v-icon>
                         </v-btn>
                     </v-flex>
-                </v-form> 
-            </div>
-            </v-card-title>
-            <v-card-actions>
-            
-            </v-card-actions>
-        </v-card>
-        </v-flex>
-    </v-layout>
+                    <v-flex xs11 align-center>
+                        <h2>{{board.name}}</h2>
+                    </v-flex>
+                </v-layout>
+                <v-layout
+                    v-if="loadingBoard || loadingLists"
+                    align-center 
+                    justify-center 
+                    fill-height
+                    row 
+                    wrap
+                >
+                    <v-progress-circular
+                        :size="100"
+                        :width="7"
+                        color="primary"
+                        indeterminate
+                    >
+                    </v-progress-circular>
+                </v-layout>
+                <v-layout v-if="!loadingLists" row wrap>
+                    <v-flex v-for="list in lists" :key="list._id" xs12 sm6 md4 lg3 xl3 px-1 py-2 mx-auto>
+                        <listCard 
+                            :listName="list.name"
+                            :lstId="list._id"
+                            :list="list"
+                            :setDroppingList="onSetDroppingList"
+                            :startDragging="startDraggingCards"
+                            :dropCard="dropCard"
+                            :droppingList="droppingList"
+                            :cardsByListId="cardsByListId"
+                        />
+                    </v-flex>
+                </v-layout>
+                <v-layout v-if="!loadingBoard" row wrap>
+                    <v-flex xs12 sm6 md4 lg3 xl3 py-3 mx-auto>
+                        <v-card>
+                            <v-card-title primary-title style="flex-direction: column">
+                                <div class="headline">
+                                    <span class="grey--text">Create list</span><br>
+                                </div>
+                                <div>
+                                    <v-form
+                                        ref="form"
+                                        v-model="valid"
+                                        @submit.prevent="createList"
+                                        @keydown.prevent.enter
+                                    >
+                                        <v-flex px-5 pt-3 mt-2>
+                                            <v-text-field
+                                                v-model="list.name"
+                                                :rules="[v => !!v || 'List name is required']"
+                                                label="List name"
+                                                required
+                                            >
+                                            </v-text-field>
+                                            <v-spacer></v-spacer>
+                                            <v-btn
+                                                type="submit"
+                                                color="primary"
+                                                :disabled="!valid"
+                                            >
+                                                Create
+                                            </v-btn>
+                                        </v-flex>
+                                    </v-form> 
+                                </div>
+                            </v-card-title>
+                            <v-card-actions>
+                            </v-card-actions>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+            <v-content>
+                <router-view>
+                </router-view>
+            </v-content>
+            </v-flex>
+            <v-flex xs2>
+                <navDrawer/>
+            </v-flex>
+        </v-layout>
     </v-container>
-    <v-content>
-        <router-view>
-        </router-view>
-    </v-content>
-</v-layout>
-</v-parallax>
 </template>
 
 <script>
 
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
 import listCard from '../components/listCard';
+import navDrawer from '../components/navDrawer';
 
 export default {
     components:{
-        listCard
+        listCard,
+        navDrawer
     },
     data: () => ({
         valid: true,

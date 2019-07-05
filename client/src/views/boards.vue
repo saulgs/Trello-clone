@@ -106,7 +106,7 @@ export default {
         boards(){
             return this.user ? this.findBoardsInDB({ 
                 query: {
-                    ownerId: this.user.userId,
+                    $or: [{ownerId: this.user.userId}, {memberIds: this.user.userId}],
                 } 
             }).data : [];
         }
