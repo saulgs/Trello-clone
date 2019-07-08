@@ -14,6 +14,10 @@ module.exports = function (app) {
       type: Schema.Types.ObjectId,
       ref: 'boards'
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'users'
+    },
   }, {
     timestamps: true
   });

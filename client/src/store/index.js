@@ -56,6 +56,14 @@ export default new Vuex.Store({
         },
       }
     ),
+    service('activities', {
+      instanceDefaults: {
+        text: '',
+        boardId: '',
+        userId: '',
+      },
+    }
+  ),
     auth({ userService: 'users',
           payload: undefined,
           isAuthenticatePending: false,

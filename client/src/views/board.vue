@@ -97,7 +97,10 @@
             </v-content>
             </v-flex>
             <v-flex xs2>
-                <navDrawer/>
+                <navDrawer
+                v-if="!loadingBoard"
+                :activitiesByDate="activitiesByDate"
+                />
             </v-flex>
         </v-layout>
     </v-container>
@@ -133,21 +136,29 @@ export default {
                 boardId: this.$route.params.id
             }
         });
-         this.findCards({
+        this.findCards({
+            query:{
+                boardId: this.$route.params.id
+            }
+        });
+        this.findActivities({
             query:{
                 boardId: this.$route.params.id
             }
         });        
     },
     computed: {
+        ...mapState('auth', { user: 'payload' }),
         ...mapState('boards', { loadingBoard: 'isGetPending',
                                 boardError: 'errorOnGet' }),
         ...mapState('lists', { loadingLists: 'isFindPending',
                                 listError: 'errorOnfind' }),
-        ...mapGetters('lists', { findListsinDB: 'find' }),
         ...mapState('brd', ['droppingList', 'draggingCard']),
         ...mapState('cards', { loadingCards: 'isFindPending' }),
+        ...mapState('activities', { loadingActivities: 'isFindPending' }),
+        ...mapGetters('lists', { findListsinDB: 'find' }),
         ...mapGetters('cards', { findCardsinDB: 'find' }),
+        ...mapGetters('activities', { findActivitiesinDB: 'find' }),
         lists(){
             return this.findListsinDB({
                 query:{
@@ -169,24 +180,45 @@ export default {
                 return byId;
             }, {});
         },
+        activitiesByDate() {
+            return this.findActivitiesinDB(
+                {
+                    boardId: this.$route.params.id
+                },
+                null,
+                {
+                    createdAt: '-1'
+                }
+            ).data;
+        },
     },
     methods: {
         ...mapMutations('brd', ['setDroppingList', 'setDraggingCard']),
         ...mapActions('boards', { getBoard: 'get' } ),
         ...mapActions('lists', { findLists: 'find' } ),
         ...mapActions('cards', { findCards: 'find' } ),
-        createList(){
+        ...mapActions('activities', { findActivities: 'find' } ),
+        async createList(){
             if (this.valid){
                 const { List } = this.$FeathersVuex;
                 this.list.boardId = this.$route.params.id;
                 const list = new List(this.list);
-                list.save();
+                await list.save();
+                this.createActivity(`${this.user.userInfo.displayName} created list ${list.name}`);
                 this.list = {
                     name: '',
                     order: 0,
                     archived: false
                 };
             }
+        },
+        async createActivity(text){
+            const { Activity } = this.$FeathersVuex;
+            const activity = new Activity();
+            activity.text = text;
+            activity.boardId = this.$route.params.id;
+            activity.userId = this.user.userInfo._id;
+            await activity.save();
         },
         startDraggingCards(card) {
             this.setDraggingCard(card);
@@ -202,6 +234,7 @@ export default {
                 const toList = this.lists.find(list => list._id === this.droppingList._id);
                 this.draggingCard.listId = this.droppingList._id;
                 await this.draggingCard.save();
+                this.createActivity(`${this.user.userInfo.displayName} moved card ${this.draggingCard.title} from ${fromList.name} to ${toList.name}`);
                 }
             }
             this.setDroppingList(null);
